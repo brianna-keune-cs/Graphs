@@ -15,11 +15,11 @@ class Graph:
         """
         Add a vertex to the graph.
         """
-        if vertex_id in self.vertices.keys():
-            raise AssertionError(
-                f'vertex_id: {vertex_id} is already in graph.')
+        if vertex_id not in self.vertices.keys():
+            self.vertices[vertex_id] = set()
             return
-        self.vertices[vertex_id] = set()
+        raise AssertionError(
+            f'vertex_id: {vertex_id} is already in graph.')
 
     def add_edge(self, v1, v2):
         """
@@ -45,7 +45,18 @@ class Graph:
         Print each vertex in breadth-first order
         beginning from starting_vertex.
         """
-        pass
+        q = Queue()
+        q.enqueue(starting_vertex)
+        visited = set()
+
+        while q.size() > 0:
+            current_node = q.dequeue()
+            if current_node not in visited:
+                visited.add(current_node)
+                print(current_node)
+                neighbours = self.get_neighbors(current_node)
+                for neighbour in neighbours:
+                    q.enqueue(neighbour)
 
     def dft(self, starting_vertex):
         """
@@ -115,7 +126,7 @@ if __name__ == '__main__':
     Should print:
         {1: {2}, 2: {3, 4}, 3: {5}, 4: {6, 7}, 5: {3}, 6: {3}, 7: {1, 6}}
     '''
-    print(graph.vertices)
+    print(graph.vertices, '\n')
 
     '''
     Valid BFT paths:
@@ -132,7 +143,7 @@ if __name__ == '__main__':
         1, 2, 4, 3, 7, 6, 5
         1, 2, 4, 3, 7, 5, 6
     '''
-    # graph.bft(1)
+    graph.bft(1)
 
     '''
     Valid DFT paths:
@@ -148,12 +159,12 @@ if __name__ == '__main__':
     Valid BFS path:
         [1, 2, 4, 6]
     '''
-    # print(graph.bfs(1, 6))
+    # print(graph.bfs(1, 6), '\n')
 
     '''
     Valid DFS paths:
         [1, 2, 4, 6]
         [1, 2, 4, 7, 6]
     '''
-    # print(graph.dfs(1, 6))
-    # print(graph.dfs_recursive(1, 6))
+    # print(graph.dfs(1, 6), '\n')
+    # print(graph.dfs_recursive(1, 6), '\n')

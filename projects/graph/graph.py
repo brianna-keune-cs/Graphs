@@ -112,7 +112,7 @@ class Graph:
             if current_node not in visited:
                 visited.add(current_node)
                 for neighbour in self.get_neighbors(current_node):
-                    path_copy = list(path)
+                    path_copy = path.copy()
                     path_copy.append(neighbour)
                     q.enqueue(path_copy)
 
@@ -134,7 +134,7 @@ class Graph:
             if current_node not in visited:
                 visited.add(current_node)
                 for neighbour in self.get_neighbors(current_node):
-                    path_copy = list(path)
+                    path_copy = path.copy()
                     path_copy.append(neighbour)
                     s.push(path_copy)
 
@@ -146,7 +146,28 @@ class Graph:
 
         This should be done using recursion.
         """
-        pass
+        # if starting_vertex is destination_vertex:
+        #     return list(visited)
+        # if starting_vertex not in visited:
+        #     visited.add(starting_vertex)
+        #     for neighbour in self.get_neighbors(starting_vertex):
+        #         if neighbour not in visited:
+        #             self.dfs_recursive(neighbour, destination_vertex, visited)
+        # return None
+        if len(path) is 0:
+            path.append(vertex)
+
+        visited.add(vertex)
+
+        if vertex is destination_vertex:
+            return path
+
+        for neighbour in self.get_neighbors(vertex):
+            if neighbour not in visited:
+                result = self.dfs_recursive(
+                    neighbour, destination_vertex, visited, path + [neighbour])
+                if result is not None:
+                    return result
 
 
 if __name__ == '__main__':

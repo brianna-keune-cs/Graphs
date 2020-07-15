@@ -95,6 +95,21 @@ class SocialGraph:
         return visited
 
 
+'''
+Questions
+    To create 100 users with an average of 10 friends each, how many times would you need to call add_friendship()? Why?
+    - It called add_friendship() 500 times.
+    - Because 100 * 10 / 2 = 500, and that's the range we call the function within.
+
+    If you create 1000 users with an average of 5 random friends each, what percentage of other users will be in a particular user's extended social network? What is the average degree of separation between a user and those in his/her extended network?
+    - Percentage: 99.5% because 5/1000 = 0.005 which is 0.5%
+        100% - 0.5% so there's a 99.5% chance that any other user would be in my extended network.
+    - Average degree is 6, because of the 6 degree seperation theory.
+
+    I was surprised by this answer. I had no idea until I looked more into the 6 degree of seperation. For someone who doesn't have a close group of friends but a lot of helpful acquaintances I totally think it could be possible for me to successfully get a personal message to the President from someone they know on a first name basis.
+'''
+
+
 if __name__ == '__main__':
     sg = SocialGraph()
     sg.populate_graph(10, 2)

@@ -3,9 +3,12 @@ from player import Player
 from world import World
 
 import random
+import sys
 from ast import literal_eval
-from util import Queue
+from util import Stack
 from graph import Graph
+
+sys.setrecursionlimit(10**6)
 
 # Load world
 world = World()
@@ -13,10 +16,10 @@ world = World()
 
 # You may uncomment the smaller graphs for development and testing purposes.
 # map_file = "maps/test_line.txt"
-map_file = "maps/test_cross.txt"
+# map_file = "maps/test_cross.txt"
 # map_file = "maps/test_loop.txt"
 # map_file = "maps/test_loop_fork.txt"
-# map_file = "maps/main_maze.txt"
+map_file = "maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph = literal_eval(open(map_file, "r").read())
@@ -52,23 +55,16 @@ def track_player_move(exit):
     prev_room = player.current_room.get_room_id()
     move_player(exit)
     current_room = player.current_room.get_room_id()
-    print(
-        f'\nprev_room: {prev_room}\ndirection_took: {exit}\ncurrent_room: {current_room}')
 
     # adds history for movement, and it's inverse
     map_history.add_edge(prev_room, exit, current_room)
-    print('new map entry: ', prev_room, map_history.visited_rooms[prev_room])
     map_history.add_edge(current_room, reverse_directions[exit], prev_room)
     track_unexplored_exits(current_room)
-    print('inverse map entry: ', current_room,
-          map_history.visited_rooms[current_room])
-
 
 def track_unexplored_exits(current_room):
     for exit in player.current_room.get_exits():
         if exit not in map_history.get_tracked_exits(current_room).keys():
             map_history.add_edge(current_room, exit, "?")
-
 
 def traverse_map(direction):
     prev_room = player.current_room.get_room_id()
@@ -78,7 +74,6 @@ def traverse_map(direction):
 
     if "?" not in map_history.get_tracked_exits(current_room).values():
         # move back to previous room
-        print('\nbacktracking...\n')
         back_track()
 
     for exit, room in map_history.get_tracked_exits(current_room).items():
@@ -87,21 +82,22 @@ def traverse_map(direction):
 
 
 def back_track():
+    starting_room = player.current_room.id
     if len(visited) > 0:
         prev_room = visited.pop()
-        print('popped: ', prev_room)
         for direction, room in map_history.get_tracked_exits(player.current_room.id).items():
             if room is prev_room:
                 move_player(direction)
                 for exit, room in map_history.get_tracked_exits(player.current_room.id).items():
                     if room is '?':
                         traverse_map(exit)
+                back_track()
 
 
 def find_path():
     current_room = player.current_room.get_room_id()
     visited.append(current_room)
-    # q = Queue()
+    s = Stack()
 
     # initializes map_history for starting room
     if current_room not in map_history.get_visited_rooms():
@@ -110,34 +106,17 @@ def find_path():
 
     for exit, room in map_history.get_tracked_exits(current_room).items():
         if room is '?':
-            # q.enqueue(exit)
-            print('exit: ', exit)
+            s.push(exit)
             traverse_map(exit)
 
-    # while q.size() > 0:
-    #     direction = q.dequeue()
-    #     traverse_map(direction)
+    while s.size() > 0:
+        if len(map_history.visited_rooms) == len(all_rooms):
+            return
+        direction = s.pop()
+        traverse_map(direction)
 
 
 find_path()
-print('VISITED: ', visited)
-# print('path: ', traversal_path)
-# print('path: ', visited)
-print('explored rooms: ', map_history.visited_rooms)
-
-'''
-so we have access to the
-    - room's id
-    - room's exits
-    - player can travel to one room at a time.
-    - my graph can take in making a map history
-
-input: starting room
-output: a list of directions to travel to each room in the map
-
-visited rooms are the graphs keys,
-unexplored directions are held by '?'
-'''
 
 
 # TRAVERSAL TEST

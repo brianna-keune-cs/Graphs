@@ -31,9 +31,7 @@ world.print_rooms()
 player = Player(world.starting_room)
 
 # Fill this out with directions to walk
-# traversal_path = ['n', 'n']
 traversal_path = []
-reverse_directions = {'n': 's', 's': 'n', 'e': 'w', 'w': 'e'}
 map_history = Graph()
 all_rooms = world.rooms.keys()
 visited = []
@@ -61,19 +59,26 @@ def track_player_move(exit):
     map_history.add_edge(current_room, reverse_directions[exit], prev_room)
     track_unexplored_exits(current_room)
 
+
 def track_unexplored_exits(current_room):
+    '''
+    adds a way to track which rooms have not been explored on what possible exits there are in a room.
+    '''
     for exit in player.current_room.get_exits():
         if exit not in map_history.get_tracked_exits(current_room).keys():
             map_history.add_edge(current_room, exit, "?")
 
+
 def traverse_map(direction):
-    prev_room = player.current_room.get_room_id()
+    '''
+    uses a recursive dft to get all rooms in map
+    '''
+    visited.append(player.current_room.id) # adds room to a list to be able to backtrack
+
     track_player_move(direction)
     current_room = player.current_room.get_room_id()
-    visited.append(prev_room)
 
     if "?" not in map_history.get_tracked_exits(current_room).values():
-        # move back to previous room
         back_track()
 
     for exit, room in map_history.get_tracked_exits(current_room).items():
@@ -82,7 +87,9 @@ def traverse_map(direction):
 
 
 def back_track():
-    starting_room = player.current_room.id
+    '''
+    makes player back track their path to previously known room with at least 1 unexplored room
+    '''
     if len(visited) > 0:
         prev_room = visited.pop()
         for direction, room in map_history.get_tracked_exits(player.current_room.id).items():
@@ -95,6 +102,9 @@ def back_track():
 
 
 def find_path():
+    '''
+    creates a path to all rooms on the world map
+    '''
     current_room = player.current_room.get_room_id()
     visited.append(current_room)
     s = Stack()
@@ -104,6 +114,7 @@ def find_path():
         map_history.add_room(current_room)
         track_unexplored_exits(current_room)
 
+    # picks initial direction to travel in
     for exit, room in map_history.get_tracked_exits(current_room).items():
         if room is '?':
             s.push(exit)

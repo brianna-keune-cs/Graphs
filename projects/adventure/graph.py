@@ -6,39 +6,46 @@ from util import Stack, Queue  # These may come in handy
 
 class Graph:
 
-    """Represent a graph as a dictionary of vertices mapping labels to edges."""
+    """Represent a graph as a dictionary of visited_rooms mapping labels to edges."""
 
     def __init__(self):
-        self.vertices = {}
+        self.visited_rooms = {}
 
-    def add_vertex(self, vertex_id):
+    def add_room(self, room_id):
         """
         Add a vertex to the graph.
         """
-        if vertex_id not in self.vertices.keys():
-            self.vertices[vertex_id] = set()
+        if room_id not in self.visited_rooms.keys():
+            self.visited_rooms[room_id] = {}
             return
         raise AssertionError(
-            f'vertex_id: {vertex_id} is already in graph.')
+            f'room_id: {room_id} is already in graph.')
+        
+    def len_of_visited(self):
+        return len(self.visited_rooms.keys())
+    
+    def get_visited_rooms(self):
+        return self.visited_rooms.keys()
 
-    def add_edge(self, v1, v2):
+    def add_edge(self, room_id, direction, next_room_id):
         """
         Add a directed edge to the graph.
         """
-        if v1 not in self.vertices.keys():
-            self.add_vertex(v1)
-        if v2 not in self.vertices.keys():
-            self.add_vertex(v2)
-        if v2 in self.vertices.values():
-            raise AssertionError(f'vertex: {v2} already has an edge to {v1}.')
+        if room_id not in self.visited_rooms.keys():
+            self.add_room(room_id)
+        if direction not in ["n", 's', 'e', 'w']:
             return
-        self.vertices[v1].add(v2)
+        if direction in self.visited_rooms.values():
+            raise AssertionError(
+                f'vertex: {direction} already has an edge to {room_id}.')
+            return
+        self.visited_rooms[room_id].__setitem__(direction, next_room_id)
 
-    def get_neighbors(self, vertex_id):
+    def get_tracked_exits(self, room_id):
         """
         Get all neighbors (edges) of a vertex.
         """
-        return self.vertices[vertex_id]
+        return self.visited_rooms[room_id]
 
     def bft(self, starting_vertex):
         """
@@ -83,7 +90,7 @@ class Graph:
 
         This should be done using recursion.
         """
-        if starting_vertex not in self.vertices:
+        if starting_vertex not in self.visited_rooms:
             raise IndexError(
                 f'the starting vertext: {starting_vertex} is not a vertex.')
 
@@ -165,13 +172,13 @@ class Graph:
 if __name__ == '__main__':
     graph = Graph()  # Instantiate your graph
     # https://github.com/LambdaSchool/Graphs/blob/master/objectives/breadth-first-search/img/bfs-visit-order.png
-    graph.add_vertex(1)
-    graph.add_vertex(2)
-    graph.add_vertex(3)
-    graph.add_vertex(4)
-    graph.add_vertex(5)
-    graph.add_vertex(6)
-    graph.add_vertex(7)
+    graph.add_room(1)
+    graph.add_room(2)
+    graph.add_room(3)
+    graph.add_room(4)
+    graph.add_room(5)
+    graph.add_room(6)
+    graph.add_room(7)
     graph.add_edge(5, 3)
     graph.add_edge(6, 3)
     graph.add_edge(7, 1)
@@ -187,7 +194,7 @@ if __name__ == '__main__':
     Should print:
         {1: {2}, 2: {3, 4}, 3: {5}, 4: {6, 7}, 5: {3}, 6: {3}, 7: {1, 6}}
     '''
-    print(graph.vertices)
+    print(graph.visited_rooms)
 
     '''
     Valid BFT paths:
